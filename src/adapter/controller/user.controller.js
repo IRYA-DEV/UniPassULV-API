@@ -1,4 +1,4 @@
-import { getUserByIdUseCase, buscarUserMatriculaUseCase, getBuscarCheckersUseCase, buscarPersonaUseCase, getTokenFCMUseCase, documentCompletUseCase, registerTokenFCMUseCase } from "../../usercases/user.usercase.js";
+import { getUserByIdUseCase, buscarUserMatriculaUseCase, getBuscarCheckersUseCase, buscarPersonaUseCase, getTokenFCMUseCase, documentCompletUseCase, registerTokenFCMUseCase, endCargoUseCase, updateCargoUseCase } from "../../usercases/user.usercase.js";
 
 export const getUser = async (req, res) => {
     try {
@@ -106,6 +106,41 @@ export const registerTokenFCM = async (req, res) => {
         res.json({ message: "Dato actualizado correctamente" });
     } catch (error) {
         console.error("Error en registerTokenFCM:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const endCargo = async (req, res) => {
+    try {
+        const { Matricula } = req.params;
+
+        const result = await endCargoUseCase(Matricula);
+
+        if (!result.success) {
+            return res.status(404).json({ message: result.message });
+        }
+
+        return res.status(200).json({ message: result.message });
+    } catch (error) {
+        console.error("Error en endCargo:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const updateCargo = async (req, res) => {
+    try {
+        const { Matricula } = req.params;
+        const { IdCargoDelegado } = req.body;
+
+        const success = await updateCargoUseCase(Matricula, IdCargoDelegado);
+
+        if (!success) {
+            return res.status(404).json({ message: "Registro no encontrado" });
+        }
+
+        return res.status(200).json({ message: "Estado actualizado exitosamente" });
+    } catch (error) {
+        console.error("Error en updateCargo:", error);
         res.status(500).json({ error: error.message });
     }
 };
