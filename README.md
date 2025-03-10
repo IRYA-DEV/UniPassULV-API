@@ -182,7 +182,7 @@ export const loginUser = async (req, res) => {
 ---
 
 ## 📌 **Beneficios en el código con clean architecture implementado**
-```md
+
 ### **Beneficios de este código**
 - **Separación de responsabilidades** → El controlador solo maneja las solicitudes HTTP.
 - **Reutilización** → `AuthRepository` encapsula el acceso a la base de datos.
