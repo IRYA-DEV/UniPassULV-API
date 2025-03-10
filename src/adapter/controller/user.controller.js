@@ -1,4 +1,4 @@
-import { getUserByIdUseCase, buscarUserMatriculaUseCase, getBuscarCheckersUseCase, buscarPersonaUseCase, getTokenFCMUseCase } from "../../usercases/user.usercase.js";
+import { getUserByIdUseCase, buscarUserMatriculaUseCase, getBuscarCheckersUseCase, buscarPersonaUseCase, getTokenFCMUseCase, documentCompletUseCase, registerTokenFCMUseCase } from "../../usercases/user.usercase.js";
 
 export const getUser = async (req, res) => {
     try {
@@ -70,6 +70,42 @@ export const SearchTokenFCM = async (req, res) => {
         return res.json(token);
     } catch (error) {
         console.error("Error en SearchTokenFCM:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const documentComplet = async (req, res) => {
+    try {
+        const { Matricula } = req.params;
+        const { StatusDoc } = req.body;
+
+        const success = await documentCompletUseCase(Matricula, StatusDoc);
+
+        if (!success) {
+            return res.status(404).json({ message: "Dato no encontrado" });
+        }
+
+        res.json({ message: "Dato actualizado correctamente" });
+    } catch (error) {
+        console.error("Error en documentComplet:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const registerTokenFCM = async (req, res) => {
+    try {
+        const { Matricula } = req.params;
+        const { TokenCFM } = req.body;
+
+        const success = await registerTokenFCMUseCase(Matricula, TokenCFM);
+
+        if (!success) {
+            return res.status(404).json({ message: "Dato no encontrado" });
+        }
+
+        res.json({ message: "Dato actualizado correctamente" });
+    } catch (error) {
+        console.error("Error en registerTokenFCM:", error);
         res.status(500).json({ error: error.message });
     }
 };

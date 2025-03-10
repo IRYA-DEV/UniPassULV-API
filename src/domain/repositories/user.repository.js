@@ -87,4 +87,24 @@ export class UserRepository {
 
         return result.recordset.length === 0 ? null : result.recordset;
     }
+
+    async updateDocumentStatus(matricula, statusDoc) {
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input("Matricula", sql.VarChar, matricula)
+            .input("StatusDoc", sql.Int, statusDoc)
+            .query("UPDATE LoginUniPass SET Documentacion = @StatusDoc WHERE Matricula = @Matricula");
+
+        return result.rowsAffected[0] > 0;
+    }
+
+    async updateTokenFCM(matricula, tokenCFM) {
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input("Matricula", sql.VarChar, matricula)
+            .input("TokenCFM", sql.VarChar, tokenCFM)
+            .query("UPDATE LoginUniPass SET TokenCFM = @TokenCFM WHERE Matricula = @Matricula");
+
+        return result.rowsAffected[0] > 0;
+    }
 }

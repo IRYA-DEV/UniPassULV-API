@@ -21,3 +21,11 @@ export async function buscarPersonaUseCase(nombre) {
 export async function getTokenFCMUseCase(matricula) {
     return await userRepository.getTokenFCM(matricula);
 }
+
+export async function documentCompletUseCase(matricula, statusDoc) {
+    return await userRepository.updateDocumentStatus(matricula, statusDoc);
+}
+
+export async function registerTokenFCMUseCase(matricula, tokenCFM) {
+    return await userRepository.updateTokenFCM(matricula, tokenCFM);
+}
