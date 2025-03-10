@@ -83,7 +83,7 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
+```
 
 ### ❌ **Problemas con el código**
 - Accede directamente a la base de datos desde el controlador.
@@ -129,9 +129,9 @@ export class AuthRepository {
         return result.recordset.length === 0 ? null : User.fromRecord(result.recordset[0]);
     }
 }
+```
 
 
-```md
 📌 **Caso de Uso**
 📂 `/usecases/auth.usecase.js`
 ```js
@@ -155,9 +155,8 @@ export async function loginUserUseCase(matricula, correo, contraseña) {
 
     return { success: true, user };
 }
+```
 
-
-```md
 📌 **Controlador**
 📂 `/adapter/controllers/auth.controller.js`
 ```js
@@ -178,7 +177,7 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
+```
 
 ---
 
