@@ -13,3 +13,11 @@ export async function buscarUserMatriculaUseCase(matricula) {
 export async function getBuscarCheckersUseCase(email) {
     return await userRepository.getCheckersByEmail(email);
 }
+
+export async function buscarPersonaUseCase(nombre) {
+    return await userRepository.searchPerson(nombre);
+}
+
+export async function getTokenFCMUseCase(matricula) {
+    return await userRepository.getTokenFCM(matricula);
+}
