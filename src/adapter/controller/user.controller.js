@@ -1,4 +1,4 @@
-import { getUserByIdUseCase, updateUserUseCase } from "../../usercases/user.usercase.js";
+import { getUserByIdUseCase, buscarUserMatriculaUseCase, getBuscarCheckersUseCase } from "../../usercases/user.usercase.js";
 
 export const getUser = async (req, res) => {
     try {
@@ -12,13 +12,31 @@ export const getUser = async (req, res) => {
     }
 };
 
-export const updateUser = async (req, res) => {
+export const buscarUserMatricula = async (req, res) => {
     try {
-        const updated = await updateUserUseCase(req.params.Id, req.body);
-        if (!updated) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
+        console.log(req.params.Matricula);
+        const user = await buscarUserMatriculaUseCase(req.params.Matricula);
+
+        if (!user) {
+            return res.status(404).json({ message: "Dato no encontrado" });
         }
-        res.json({ message: "Usuario actualizado correctamente" });
+
+        return res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getBuscarCheckers = async (req, res) => {
+    try {
+        console.log(req.params.EmailAsignador);
+        const checkers = await getBuscarCheckersUseCase(req.params.EmailAsignador);
+
+        if (!checkers) {
+            return res.status(404).json({ message: "No hay datos registrados" });
+        }
+
+        return res.json(checkers);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

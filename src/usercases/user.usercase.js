@@ -6,6 +6,10 @@ export async function getUserByIdUseCase(id) {
     return await userRepository.getUserById(id);
 }
 
-export async function updateUserUseCase(id, userData) {
-    return await userRepository.updateUser(id, userData);
+export async function buscarUserMatriculaUseCase(matricula) {
+    return await userRepository.getUserByMatricula(matricula);
+}
+
+export async function getBuscarCheckersUseCase(email) {
+    return await userRepository.getCheckersByEmail(email);
 }

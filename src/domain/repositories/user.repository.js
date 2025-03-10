@@ -14,15 +14,29 @@ export class UserRepository {
         return result.recordset[0];
     }
 
-    async updateUser(id, userData) {
+    async getUserByMatricula(matricula) {
         const pool = await getConnection();
         const result = await pool.request()
-            .input("Id", sql.Int, id)
-            .input("Matricula", sql.VarChar, userData.matricula)
-            .input("Correo", sql.VarChar, userData.correo)
-            .input("Nombre", sql.VarChar, userData.nombre)
-            .query(`UPDATE LoginUniPass SET Matricula = @Matricula, Correo = @Correo, Nombre = @Nombre WHERE IdLogin = @Id`);
-        
-        return result.rowsAffected[0] > 0;
+            .input("Matricula", sql.VarChar, matricula)
+            .query("SELECT * FROM LoginUniPass WHERE Matricula = @Matricula");
+
+        if (result.recordset.length === 0) {
+            return null;
+        }
+
+        return result.recordset[0];
+    }
+
+    async getCheckersByEmail(email) {
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input("EmailEncargado", sql.VarChar, email)
+            .query("SELECT * FROM LoginUniPass WHERE TipoUser = 'DEPARTAMENTO' AND Correo = @EmailEncargado");
+
+        if (result.recordset.length === 0) {
+            return null;
+        }
+
+        return result.recordset;
     }
 }
