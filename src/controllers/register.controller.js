@@ -1,4 +1,5 @@
 import { getConnection } from "../database/connection.js";
+import { hashData, VerifyHashData } from '../util/hashData.js';
 import sql from 'mssql';
 
 export const newUser = async (req, res) => {
@@ -6,6 +7,10 @@ export const newUser = async (req, res) => {
 
   try {
     console.log('Solicitud recibida:', req.body);  // Depuración
+
+    // Encripta la contraseña antes de enviarla a la base de datos
+    const hashedPassword = await hashData(req.body.Contraseña);
+
     pool = await getConnection();
     
     // Verificar si el usuario ya existe
@@ -20,7 +25,7 @@ export const newUser = async (req, res) => {
     // Insertar nuevo usuario
     const respuesta = await pool.request()
       .input('Matricula', sql.VarChar, req.body.Matricula)
-      .input('Contraseña', sql.VarChar, req.body.Contraseña)
+      .input('Contraseña', sql.VarChar, hashedPassword)
       .input('Correo', sql.VarChar, req.body.Correo)
       .input('Nombre', sql.VarChar, req.body.Nombre)
       .input('Apellidos', sql.VarChar, req.body.Apellidos)
@@ -41,7 +46,7 @@ export const newUser = async (req, res) => {
       res.json({
         IdLogin: insertedUser.IdLogin,
         Matricula: req.body.Matricula,
-        Contraseña: req.body.Contraseña,
+        Contraseña: hashedPassword,
         Correo: req.body.Correo,
         Nombre: req.body.Nombre,
         Apellidos: req.body.Apellidos,

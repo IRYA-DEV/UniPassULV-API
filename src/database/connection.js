@@ -11,7 +11,7 @@ const dbSettings = {
         idleTimeoutMillis: 30000
       },
     options: {
-        encrypy: false,
+        encrypy: true,
         trustServerCertificate: true,
     }
 }

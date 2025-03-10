@@ -22,4 +22,8 @@ const filtro = (req, file, cb) => {
     }
 };
 
-export const Subirimagen = multer({ storage: guardar, fileFilter: filtro });
+export const Subirimagen = multer({ 
+    storage: guardar, 
+    fileFilter: filtro,
+    limits: { fileSize: 50 * 1024 * 1024 } 
+});
