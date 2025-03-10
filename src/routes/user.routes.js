@@ -3,13 +3,9 @@ import { getUsers, getUser, createUser, updateUser, deleteUser, loginUser, putPa
 
 const router = Router();
 
-router.get("/users", getUsers);
-
 router.get("/user/:Id", getUser);
 
 router.get("/userMatricula/:Matricula", BuscarUserMatricula);
-
-router.post("/users", createUser);
 
 router.put("/users/:Id", updateUser);
 
