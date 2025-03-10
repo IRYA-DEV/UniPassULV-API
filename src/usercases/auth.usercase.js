@@ -1,4 +1,4 @@
-import { AuthRepository } from "../domain/repositories/auth.repository.js";
+import { AuthRepository } from "../adapter/repositories/auth.repository.js";
 import { VerifyHashData, hashData } from "../util/hashData.js"; 
 
 const authRepository = new AuthRepository();

@@ -1,4 +1,4 @@
-import { UserRepository } from "../domain/repositories/user.repository.js";
+import { UserRepository } from "../adapter/repositories/user.repository.js";
 
 const userRepository = new UserRepository();
 

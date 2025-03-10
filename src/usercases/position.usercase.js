@@ -1,4 +1,4 @@
-import { PositionRepository } from "../domain/repositories/position.repository.js";
+import { PositionRepository } from "../adapter/repositories/position.repository.js";
 
 const positionRepository = new PositionRepository();
 

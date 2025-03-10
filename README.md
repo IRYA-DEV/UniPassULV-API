@@ -42,6 +42,7 @@ Cada capa tiene una única responsabilidad:
 - **`adapter/`** → Maneja las solicitudes HTTP y respuestas.
 - **`domain/`** → Contiene los modelos y repositorios que interactúan con la base de datos.
 - **`usecases/`** → Implementa la lógica de negocio, separando la funcionalidad del controlador.
+- **`infrastructure/`** → Contiene bases de datos, UI, servidores, APIs, frameworks, etc.. Y su propósito es ejecutar el sistema, pero no definir la lógica de negocio.
 
 ### 📌 **2. Ejemplo de Refactorización: Login**
 Antes de aplicar **Clean Architecture**, la lógica del login estaba **dentro del controlador**, lo que lo hacía difícil de probar y mantener.

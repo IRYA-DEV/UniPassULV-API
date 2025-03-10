@@ -1,6 +1,6 @@
 import { getConnection } from "../../infrastructure/database/connection.js";
 import sql from "mssql";
-import User from "../models/user.js";
+import User from "../../domain/models/user.js";
 
 export class AuthRepository {
     async getUserByMatriculaOrCorreo(matricula, correo) {
