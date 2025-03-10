@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import usersRoutes from "./adapter/routes/user.routes.js";
+import authRouters from "./adapter/routes/auth.routes.js";
 
 const app = express();
 
@@ -14,5 +15,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 app.use(usersRoutes);
+
+app.use(authRouters);
 
 export default app;

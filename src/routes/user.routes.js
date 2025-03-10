@@ -1,15 +1,11 @@
 import { Router } from "express";
-import { getUsers, getUser, createUser, updateUser, deleteUser, loginUser, putPassword, BuscarUserMatricula, getBuscarCheckers, buscarPersona, updateCargo, endCargo, registerTokenFCM, SearchTokenFCM, documentComplet } from "../controllers/user.controllers.js";
+import { getUser, loginUser, putPassword, BuscarUserMatricula, getBuscarCheckers, buscarPersona, updateCargo, endCargo, registerTokenFCM, SearchTokenFCM, documentComplet } from "../controllers/user.controllers.js";
 
 const router = Router();
 
 router.get("/user/:Id", getUser);
 
 router.get("/userMatricula/:Matricula", BuscarUserMatricula);
-
-router.put("/users/:Id", updateUser);
-
-router.delete("/users/:Id", deleteUser);
 
 router.post("/login", loginUser);
 
