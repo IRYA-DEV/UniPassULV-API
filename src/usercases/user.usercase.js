@@ -29,3 +29,15 @@ export async function documentCompletUseCase(matricula, statusDoc) {
 export async function registerTokenFCMUseCase(matricula, tokenCFM) {
     return await userRepository.updateTokenFCM(matricula, tokenCFM);
 }
+
+export async function endCargoUseCase(matricula) {
+    return await userRepository.removeCargo(matricula);
+}
+
+export async function updateCargoUseCase(matricula, idCargoDelegado) {
+    return await userRepository.updateCargo(matricula, idCargoDelegado);
+}
+
+export async function getInfoCargoUseCase(id) {
+    return await userRepository.getInfoCargo(id);
+}

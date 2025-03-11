@@ -1,4 +1,4 @@
-import { getUserByIdUseCase, buscarUserMatriculaUseCase, getBuscarCheckersUseCase, buscarPersonaUseCase, getTokenFCMUseCase, documentCompletUseCase, registerTokenFCMUseCase, endCargoUseCase, updateCargoUseCase } from "../../usercases/user.usercase.js";
+import { getUserByIdUseCase, buscarUserMatriculaUseCase, getBuscarCheckersUseCase, buscarPersonaUseCase, getTokenFCMUseCase, documentCompletUseCase, registerTokenFCMUseCase, endCargoUseCase, updateCargoUseCase, getInfoCargoUseCase } from "../../usercases/user.usercase.js";
 
 export const getUser = async (req, res) => {
     try {
@@ -141,6 +141,24 @@ export const updateCargo = async (req, res) => {
         return res.status(200).json({ message: "Estado actualizado exitosamente" });
     } catch (error) {
         console.error("Error en updateCargo:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getInfoCargo = async (req, res) => {
+    try {
+        const { Id } = req.params;
+        console.log("Buscando cargo para:", Id);
+
+        const cargo = await getInfoCargoUseCase(Id);
+
+        if (!cargo) {
+            return res.status(404).json(null);
+        }
+
+        return res.json(cargo);
+    } catch (error) {
+        console.error("Error en getInfoCargo:", error);
         res.status(500).json({ error: error.message });
     }
 };
