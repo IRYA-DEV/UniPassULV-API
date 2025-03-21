@@ -1,5 +1,5 @@
 import { getConnection } from "../../infrastructure/database/connection.js";
-import sql, { pool } from "mssql";
+import sql from "mssql";
 
 export class PositionRepository {
     async getInfoDelegado(matriculaEncargado) {
