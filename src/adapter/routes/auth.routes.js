@@ -1,9 +1,13 @@
+// src/adapter/routes/auth.routes.js
 import { Router } from "express";
-import { loginUser, putPassword } from "../controller/auth.controller.js";
+import { makeInvoker } from "awilix-express";
 
 const router = Router();
 
-router.post("/login", loginUser);
-router.put("/password/:Correo", putPassword);
+// Inyección del controlador
+const api = makeInvoker((deps) => deps.authController);
+
+router.post("/login", api("loginUser"));
+router.put("/password/:Correo", api("putPassword"));
 
 export default router;
