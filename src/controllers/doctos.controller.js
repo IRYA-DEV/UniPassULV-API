@@ -2,8 +2,7 @@ import { getConnection } from "../database/connection.js";
 import sql from 'mssql';
 import * as fs from 'fs';
 import path from "path";
-// Implementación con cloudinary
-import cloudinary from "../config.js";
+
 
 export const getProfile = async (req, res) => {
     let pool;

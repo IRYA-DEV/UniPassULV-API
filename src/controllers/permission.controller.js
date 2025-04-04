@@ -330,3 +330,125 @@ export const autorizarPermiso = async (req, res) => {
     }
 }
 
+export const topPermissionStudent = async (req, res) => {
+    let pool;
+    try {
+        pool = await getConnection();
+        const respuesta = await pool
+            .request()
+            .input('IdLogin', sql.Int, req.params.Id)
+            .query(`SELECT TOP 10 *
+                    FROM Permission 
+                    WHERE IdUser = @IdLogin 
+                    ORDER BY FechaSolicitada DESC`);
+
+        if (respuesta.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Dato no encontrado" });
+        }
+
+        return res.json(respuesta.recordset); // se devuelven todos
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+        res.status(500).send(error.message);
+    } finally {
+        if (pool) {
+            try {
+                await pool.close();
+            } catch (error) {
+                console.error('Error al cerrar la conexión a la base de datos:', error.message);
+            }
+        }
+    }
+};
+
+
+export const topPermissionEmployee = async (req, res) => {
+    let pool;
+    try {
+        pool = await getConnection();
+        const respuesta = await pool
+            .request()
+            .input('Matricula', sql.Int, req.params.Id) //Se usa el valor de la matricula
+            .query(`SELECT TOP 10 Permission.*, TypeExit.*, LoginUniPass.* 
+                FROM Permission 
+                INNER JOIN Authorize ON Permission.IdPermission = Authorize.IdPermission 
+                JOIN TypeExit ON Permission.IdTipoSalida = TypeExit.IdTypeExit 
+                JOIN LoginUniPass ON Permission.IdUser = LoginUniPass.IdLogin 
+                WHERE Authorize.IdEmpleado = @Matricula 
+                ORDER BY Permission.FechaSolicitada DESC`);
+        if (respuesta.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Dato no encontrado" });
+        }
+        return res.json(respuesta.recordset);
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+        res.status(500).send(error.message);
+    } finally {
+        if (pool) {
+            try {
+                await pool.close();
+            } catch (error) {
+                console.error('Error al cerrar la conexion a la base de datos:', error.message);
+            }
+        }
+    }
+}
+
+export const topPermissionPrece = async (req, res) => {
+    let pool;
+    try {
+        pool = await getConnection();
+        const respuesta = await pool.request()
+            .input('Matricula', sql.Int, req.params.Id) //Se usa el valor de la matricula
+            .query(`SELECT TOP 10 *
+            FROM (
+            SELECT Permission.*, TypeExit.*, LoginUniPass.* FROM Permission 
+            INNER JOIN Authorize ON Permission.IdPermission = Authorize.IdPermission 
+            JOIN TypeExit ON Permission.IdTipoSalida = TypeExit.IdTypeExit 
+            JOIN LoginUniPass ON Permission.IdUser = LoginUniPass.IdLogin 
+            WHERE Authorize.IdEmpleado = @Matricula 
+            AND Permission.IdPermission IN (
+                SELECT A1.IdPermission 
+                FROM Authorize A1 
+                GROUP BY A1.IdPermission 
+                HAVING COUNT(A1.IdAuthorize) = 1
+            )
+
+            UNION
+
+            SELECT Permission.*, TypeExit.*, LoginUniPass.* FROM Permission 
+            INNER JOIN Authorize ON Permission.IdPermission = Authorize.IdPermission 
+            JOIN TypeExit ON Permission.IdTipoSalida = TypeExit.IdTypeExit 
+            JOIN LoginUniPass ON Permission.IdUser = LoginUniPass.IdLogin 
+            WHERE Authorize.IdEmpleado = @Matricula  
+            AND Permission.IdPermission IN (
+                SELECT A1.IdPermission 
+                FROM Authorize A1 
+                WHERE A1.StatusAuthorize = 'Aprobada' 
+                AND A1.IdAuthorize = (
+                SELECT TOP 1 A2.IdAuthorize 
+            FROM Authorize A2 
+            WHERE A2.IdPermission = A1.IdPermission 
+            ORDER BY A2.IdAuthorize
+                )
+            )
+            ) AS CombinedResults
+            ORDER BY FechaSolicitada DESC;`);
+        if (respuesta.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Dato no encontrado" });
+        }
+        return res.json(respuesta.recordset);
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+        res.status(500).send(error.message);
+    } finally {
+        if (pool) {
+            try {
+                await pool.close();
+            } catch (error) {
+                console.error('Error al cerrar la conexion a la base de datos:', error.message);
+            }
+        }
+    }
+}
+

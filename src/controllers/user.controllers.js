@@ -126,6 +126,10 @@ export const createUser = async (req, res) => {
         const hashedPassword = await hashData(req.body.Contraseña);
 
         pool = await getConnection();
+
+        // Encripta la contraseña antes de enviarla a la base de datos
+        const hashedPassword = await hashData(req.body.Contraseña);
+
         const result = await pool
             .request()
             .input('Matricula', sql.VarChar, req.body.Matricula)
@@ -144,7 +148,7 @@ export const createUser = async (req, res) => {
         res.json({
             Id: result.recordset[0].Id,
             Matricula: req.body.Matricula,
-            Contraseña: req.body.Contraseña,
+            Contraseña: hashedPassword,
             Correo: req.body.Correo,
             Nombre: req.body.Nombre,
             Telefono: req.body.Telefono,
