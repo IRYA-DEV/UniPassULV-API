@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { getUsers, getUser, createUser, updateUser, deleteUser, loginUser, putPassword, BuscarUserMatricula, getBuscarCheckers, buscarPersona, updateCargo, endCargo, registerTokenFCM, SearchTokenFCM, documentComplet } from "../controllers/user.controllers.js";
+import { verifyToken } from '../Middleware/verifityToken.js';
+import { getUsers, getUser, createUser, updateUser, deleteUser, loginUser, putPassword, BuscarUserMatricula, getBuscarCheckers, buscarPersona, updateCargo, endCargo, registerTokenFCM, SearchTokenFCM, documentComplet, verifySessionToken } from "../controllers/user.controllers.js";
 
 const router = Router();
 
@@ -15,7 +16,13 @@ router.put("/users/:Id", updateUser);
 
 router.delete("/users/:Id", deleteUser);
 
+//=========== LOGIN ===============
+
 router.post("/login", loginUser);
+
+router.get("/verifyToken", verifyToken, verifySessionToken);
+
+//==================================
 
 router.put("/password/:Correo", putPassword);
 

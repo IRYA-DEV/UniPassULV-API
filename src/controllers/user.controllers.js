@@ -1,6 +1,8 @@
 import { getConnection } from "../database/connection.js";
 import { hashData, VerifyHashData } from '../util/hashData.js';
 import sql from 'mssql';
+import { generateToken } from '../util/generateToken.js'
+
 
 export const getUsers = async (req, res) => {
     let pool;
@@ -217,11 +219,12 @@ export const deleteUser = async (req, res) => {
     }
 };
 
+//==================================== LOGIN ================================================
+
 export const loginUser = async (req, res) => {
     let pool;
     try {
         const { Matricula, Contraseña, Correo } = req.body;
-        console.log(req.body);
         pool = await getConnection();
 
         let result;
@@ -243,21 +246,21 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Debe proporcionar matrícula o correo' });
         }
 
-        // Verificar si se encontró un usuario
         if (result.recordset.length === 0) {
             return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
         }
 
         const user = result.recordset[0];
-
-        // Comparar la contraseña ingresada con el hash almacenado
+        console.log(user);
         const isPasswordValid = await VerifyHashData(Contraseña, user.Contraseña);
         if (!isPasswordValid) {
             return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
         }
 
-        // Contraseña válida, enviar respuesta exitosa
-        return res.json({ success: true, user });
+        const token = generateToken(user);
+        console.log(token);
+        //Enviar el token al frontend
+        return res.json({ success: true, token, user });
 
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -265,6 +268,13 @@ export const loginUser = async (req, res) => {
         if (pool) pool.close();
     }
 };
+
+export const verifySessionToken = (req, res) => {
+    // Si el middleware pasó, el token es válido
+    res.status(200).json({ success: true, user: req.user });
+};
+
+//==================================== FIN LOGIN ================================================
 
 export const putPassword = async (req, res) => {
     let pool;
