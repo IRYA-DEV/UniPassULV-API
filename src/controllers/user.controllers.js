@@ -3,7 +3,6 @@ import { hashData, VerifyHashData } from '../util/hashData.js';
 import sql from 'mssql';
 import { generateToken } from '../util/generateToken.js'
 
-
 export const getUsers = async (req, res) => {
     let pool;
     try {
@@ -118,55 +117,6 @@ export const updateCargo = async (req, res) => {
         }
     }
 }
-
-export const createUser = async (req, res) => {
-    let pool;
-    try {
-        console.log(req.body);
-
-        // Encripta la contraseña antes de enviarla a la base de datos
-        const hashedPassword = await hashData(req.body.Contraseña);
-
-        pool = await getConnection();
-
-        // Encripta la contraseña antes de enviarla a la base de datos
-        const hashedPassword = await hashData(req.body.Contraseña);
-
-        const result = await pool
-            .request()
-            .input('Matricula', sql.VarChar, req.body.Matricula)
-            .input('Contraseña', sql.VarChar, hashedPassword)
-            .input('Correo', sql.VarChar, req.body.Correo)
-            .input('Nombre', sql.VarChar, req.body.Nombre)
-            .input('Telefono', sql.VarChar, req.body.Telefono)
-            .input('Celular', sql.VarChar, req.body.Celular)
-            .input('Sexo', sql.VarChar, req.body.Sexo)
-            .input('Domicilio', sql.VarChar, req.body.Domicilio)
-            .input('TipoUser', sql.VarChar, req.body.TipoUser)
-            .input('IdTutor', sql.Int, req.body.IdTutor)
-            .input('IdTrabajo', sql.Int, req.body.IdTrabajo)
-            .query('INSERT INTO Users (Matricula ,Contraseña ,Correo ,Nombre ,Telefono ,Celular ,Sexo ,Domicilio ,TipoUser ,IdTutor ,IdTrabajo ) VALUES (@Matricula ,@Contraseña ,@Correo ,@Nombre ,@Telefono ,@Celular ,@Sexo ,@Domicilio ,@TipoUser ,@IdTutor ,@IdTrabajo); SELECT SCOPE_IDENTITY() AS IdUser');
-        console.log(result);
-        res.json({
-            Id: result.recordset[0].Id,
-            Matricula: req.body.Matricula,
-            Contraseña: hashedPassword,
-            Correo: req.body.Correo,
-            Nombre: req.body.Nombre,
-            Telefono: req.body.Telefono,
-            Celular: req.body.Celular,
-            Sexo: req.body.Celular,
-            Domicilio: req.body.Domicilio,
-            TipoUser: req.body.TipoUser,
-            IdTutor: req.body.IdTutor,
-            IdTrabajo: req.body.IdTrabajo,
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    } finally {
-        if (pool) pool.close();
-    }
-};
 
 export const updateUser = async (req, res) => {
     let pool;

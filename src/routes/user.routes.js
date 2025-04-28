@@ -10,8 +10,6 @@ router.get("/user/:Id", getUser);
 
 router.get("/userMatricula/:Matricula", BuscarUserMatricula);
 
-router.post("/users", createUser);
-
 router.put("/users/:Id", updateUser);
 
 router.delete("/users/:Id", deleteUser);
