@@ -274,3 +274,34 @@ export const getArchivosAlumno = async (req, res) => {
         }
     }
 }
+
+export const aprobarDocumento = async (req, res) => {
+    let pool;
+    try {
+        const { IdDocumento } = req.body;
+        const { Id } = req.params;
+
+        pool = await getConnection();
+        const result = await pool.request()
+            .input("Id", sql.Int, Id)
+            .input("IdDocumento", sql.Int, IdDocumento)
+            .query("UPDATE Doctos SET StatusRevision = 'Aprobado' WHERE IdLogin = @Id AND IdDocumento = @IdDocumento");
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Documento no encontrado" });
+        }
+
+        return res.status(200).json({ message: "Documento aprobado correctamente" });
+    } catch (error) {
+        console.error('Error actualizando estado de revisión:', error);
+        return res.status(500).json({ message: 'Error en el servidor' });
+    } finally {
+        if (pool) {
+            try {
+                await pool.close();
+            } catch (closeError) {
+                console.error('Error al cerrar conexión a la base de datos:', closeError);
+            }
+        }
+    }
+};
