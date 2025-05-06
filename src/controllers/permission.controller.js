@@ -452,3 +452,168 @@ export const topPermissionPrece = async (req, res) => {
     }
 }
 
+export const DashboardPermission = async (req, res) => {
+    let pool;
+    try {
+        pool = await getConnection();
+        const respuesta = await pool.request()
+            .input('Matricula', sql.Int, req.params.IdPreceptor)
+            .query(`
+                WITH PermisosFiltrados AS (
+                    -- Primera parte: Permisos con solo una autorización
+                    SELECT P.*, T.*, L.*
+                    FROM Permission P
+                    INNER JOIN Authorize A ON P.IdPermission = A.IdPermission
+                    JOIN TypeExit T ON P.IdTipoSalida = T.IdTypeExit
+                    JOIN LoginUniPass L ON P.IdUser = L.IdLogin
+                    WHERE A.IdEmpleado = @Matricula
+                    AND P.IdPermission IN (
+                        SELECT A1.IdPermission
+                        FROM Authorize A1
+                        GROUP BY A1.IdPermission
+                        HAVING COUNT(A1.IdAuthorize) = 1
+                    )
+
+                    UNION
+
+                    -- Segunda parte: Permisos donde la primera autorización fue Aprobada
+                    SELECT P.*, T.*, L.*
+                    FROM Permission P
+                    INNER JOIN Authorize A ON P.IdPermission = A.IdPermission
+                    JOIN TypeExit T ON P.IdTipoSalida = T.IdTypeExit
+                    JOIN LoginUniPass L ON P.IdUser = L.IdLogin
+                    WHERE A.IdEmpleado = @Matricula
+                    AND P.IdPermission IN (
+                        SELECT A1.IdPermission
+                        FROM Authorize A1
+                        WHERE A1.StatusAuthorize = 'Aprobada'
+                        AND A1.IdAuthorize = (
+                            SELECT TOP 1 A2.IdAuthorize
+                            FROM Authorize A2
+                            WHERE A2.IdPermission = A1.IdPermission
+                            ORDER BY A2.IdAuthorize
+                        )
+                    )
+                ),
+                Conteo AS (
+                    SELECT StatusPermission, COUNT(*) AS Cantidad
+                    FROM PermisosFiltrados
+                    GROUP BY StatusPermission
+
+                    UNION ALL
+
+                    SELECT 'TOTAL', COUNT(*) FROM PermisosFiltrados
+                )
+
+                SELECT 
+                    ISNULL([Aprobada], 0) AS Aprobadas,
+                    ISNULL([Rechazada], 0) AS Rechazadas,
+                    ISNULL([Pendiente], 0) AS Pendientes,
+                    ISNULL([TOTAL], 0) AS Total
+                FROM Conteo
+                PIVOT (
+                    SUM(Cantidad)
+                    FOR StatusPermission IN ([Aprobada], [Rechazada], [Pendiente], [TOTAL])
+                ) AS ConteoPivot;
+            `);
+
+        const resultados = respuesta.recordset;
+
+        if (!resultados || resultados.length === 0) {
+            return res.status(404).json({ message: "Dato no encontrado" });
+        }
+
+        return res.json(resultados);
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+        return res.status(500).send(error.message);
+    } finally {
+        if (pool) {
+            try {
+                await pool.close();
+            } catch (error) {
+                console.error('Error al cerrar la conexión a la base de datos:', error.message);
+            }
+        }
+    }
+};
+
+export const filtrarPermisos = async (req, res) => {
+    const { fechaInicio, fechaFin, status, nombre, matricula } = req.query;
+    const idEmpleado = parseInt(req.params.IdPreceptor); // se asume que el ID del preceptor llega por params
+
+    let pool;
+    try {
+        pool = await getConnection();
+        const result = await pool.request()
+            .input('FechaInicio', sql.Date, fechaInicio || null)
+            .input('FechaFin', sql.Date, fechaFin || null)
+            .input('Status', sql.VarChar(20), status || null)
+            .input('Nombre', sql.VarChar(100), nombre || null)
+            .input('Matricula', sql.VarChar(20), matricula || null)
+            .input('IdEmpleado', sql.Int, idEmpleado)
+            .query(`
+                WITH PermisosFiltrados AS (
+                    SELECT P.*, T.*, L.*
+                    FROM Permission P
+                    INNER JOIN Authorize A ON P.IdPermission = A.IdPermission
+                    JOIN TypeExit T ON P.IdTipoSalida = T.IdTypeExit
+                    JOIN LoginUniPass L ON P.IdUser = L.IdLogin
+                    WHERE A.IdEmpleado = @IdEmpleado
+                    AND P.IdPermission IN (
+                        SELECT A1.IdPermission
+                        FROM Authorize A1
+                        GROUP BY A1.IdPermission
+                        HAVING COUNT(A1.IdAuthorize) = 1
+                    )
+
+                    UNION
+
+                    SELECT P.*, T.*, L.*
+                    FROM Permission P
+                    INNER JOIN Authorize A ON P.IdPermission = A.IdPermission
+                    JOIN TypeExit T ON P.IdTipoSalida = T.IdTypeExit
+                    JOIN LoginUniPass L ON P.IdUser = L.IdLogin
+                    WHERE A.IdEmpleado = @IdEmpleado
+                    AND P.IdPermission IN (
+                        SELECT A1.IdPermission
+                        FROM Authorize A1
+                        WHERE A1.StatusAuthorize = 'Aprobada'
+                        AND A1.IdAuthorize = (
+                            SELECT TOP 1 A2.IdAuthorize
+                            FROM Authorize A2
+                            WHERE A2.IdPermission = A1.IdPermission
+                            ORDER BY A2.IdAuthorize
+                        )
+                    )
+                )
+
+                SELECT *
+                FROM PermisosFiltrados
+                WHERE 
+                    (@FechaInicio IS NULL OR FechaSalida >= @FechaInicio AND FechaSalida < DATEADD(DAY, 1, @FechaInicio)) AND
+                    (@FechaFin IS NULL OR FechaRegreso >= @FechaFin AND FechaRegreso < DATEADD(DAY, 1, @FechaFin)) AND
+                    (@Status IS NULL OR StatusPermission = @Status) AND
+                    (@Nombre IS NULL OR Nombre LIKE '%' + @Nombre + '%') AND
+                    (@Matricula IS NULL OR Matricula LIKE '%' + @Matricula + '%');
+            `);
+
+        if (!result.recordset || result.recordset.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron permisos con los filtros aplicados.' });
+        }
+
+        return res.json(result.recordset);
+
+    } catch (error) {
+        console.error('Error al filtrar permisos:', error);
+        res.status(500).send(error.message);
+    } finally {
+        if (pool) {
+            try {
+                await pool.close();
+            } catch (err) {
+                console.error('Error al cerrar la conexión:', err.message);
+            }
+        }
+    }
+};
