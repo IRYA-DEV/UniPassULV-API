@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { autorizarPermiso, cancelPermission, createPermission, DashboardPermission, deletePermission, filtrarPermisos, getPermissionForAutorizacion, getPermissionForAutorizacionPrece, getPermissionsByUser, topPermissionEmployee, topPermissionPrece, topPermissionStudent } from "../controllers/permission.controller.js";
+import { autorizarPermiso, cancelPermission, createPermission, DashboardDocumentos, DashboardPermission, deletePermission, filtrarPermisos, getPermissionForAutorizacion, getPermissionForAutorizacionPrece, getPermissionsByUser, topPermissionEmployee, topPermissionPrece, topPermissionStudent } from "../controllers/permission.controller.js";
 
 const router = Router();
 
@@ -24,6 +24,8 @@ router.get("/permissionTop/Employee/:Id", topPermissionEmployee);
 router.get("/permissionTop/Preceptor/:Id", topPermissionPrece);
 
 router.get("/dashboardPermission/:IdPreceptor", DashboardPermission);
+
+router.get("/dashboardDocumentos/:IdPreceptor", DashboardDocumentos);
 
 router.get('/permissions/filter/:IdPreceptor', filtrarPermisos);
 

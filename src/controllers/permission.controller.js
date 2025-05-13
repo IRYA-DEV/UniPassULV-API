@@ -538,6 +538,47 @@ export const DashboardPermission = async (req, res) => {
     }
 };
 
+export const DashboardDocumentos = async (req, res) => {
+    let pool;
+    try {
+        pool = await getConnection();
+        const respuesta = await pool.request()
+            .input('Matricula', sql.Int, req.params.IdPreceptor)
+            .query(`SELECT
+  COUNT(*) AS Total,
+  SUM(CASE WHEN d.StatusRevision = 'Aprobado' THEN 1 ELSE 0 END) AS Aprobado,
+  SUM(CASE WHEN d.StatusRevision = 'Pendiente' THEN 1 ELSE 0 END) AS Pendiente
+FROM Doctos d
+JOIN LoginUniPass a ON d.IdLogin = a.IdLogin
+WHERE a.TipoUser = 'ALUMNO'
+  AND a.Dormitorio = (
+    SELECT Dormitorio
+    FROM LoginUniPass
+    WHERE Matricula = '41' AND TipoUser = 'PRECEPTOR'
+  );
+            `);
+
+        const resultados = respuesta.recordset;
+
+        if (!resultados || resultados.length === 0) {
+            return res.status(404).json({ message: "Dato no encontrado" });
+        }
+
+        return res.json(resultados);
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+        return res.status(500).send(error.message);
+    } finally {
+        if (pool) {
+            try {
+                await pool.close();
+            } catch (error) {
+                console.error('Error al cerrar la conexión a la base de datos:', error.message);
+            }
+        }
+    }
+};
+
 export const filtrarPermisos = async (req, res) => {
     const { fechaInicio, fechaFin, status, nombre, matricula } = req.query;
     const idEmpleado = parseInt(req.params.IdPreceptor); // se asume que el ID del preceptor llega por params
